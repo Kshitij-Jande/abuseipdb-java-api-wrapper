@@ -1,10 +1,10 @@
-package com.kshitij.abuseipdbwrapper;
+package com.kshitij.abuseipdbwrapper.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Utility {
+public class BasicUtils {
 
     public static Date toDate(String s) throws ParseException {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").parse(s);
