@@ -10,9 +10,9 @@ import java.util.List;
 
 public class ApiException extends Exception {
 
-    public final int statusCode;
-    public final JsonObject body;
-    public final List<String> errorDetails = new ArrayList<>();
+    private final int statusCode;
+    private final JsonObject body;
+    private final List<String> errorDetails = new ArrayList<>();
 
     public ApiException(int statusCode, String body) {
         super("Got an error from AbuseIPDB's API.");
@@ -21,6 +21,18 @@ public class ApiException extends Exception {
         this.body = jsonElement.getAsJsonObject();
         JsonArray jsonArray = this.body.get("errors").getAsJsonArray();
         jsonArray.forEach((e) -> this.errorDetails.add(e.getAsJsonObject().get("detail").getAsString()));
+    }
+
+    public int getStatusCode() {
+        return this.statusCode;
+    }
+
+    public List<String> getErrorDetails() {
+        return this.errorDetails;
+    }
+
+    public JsonObject getFullResponseBody() {
+        return this.body;
     }
 
 }
