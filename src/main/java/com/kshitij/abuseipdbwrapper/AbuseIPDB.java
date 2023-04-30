@@ -1,12 +1,15 @@
 package com.kshitij.abuseipdbwrapper;
 
+import com.kshitij.abuseipdbwrapper.utils.HttpUtils;
+
 public class AbuseIPDB {
 
     private String apiKey;
-    private final String URL = "https://api.abuseipdb.com/api/v2";
+    private HttpUtils httpUtils;
 
     public AbuseIPDB(String apiKey) {
         this.apiKey = apiKey;
+        this.httpUtils = new HttpUtils(apiKey);
     }
 
 }
