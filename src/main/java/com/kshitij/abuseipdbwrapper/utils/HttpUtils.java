@@ -1,5 +1,8 @@
 package com.kshitij.abuseipdbwrapper.utils;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.kshitij.abuseipdbwrapper.exceptions.AbuseIPDBApiException;
 
 import java.io.IOException;
@@ -25,33 +28,33 @@ public class HttpUtils {
         this.client = HttpClient.newHttpClient();
     }
 
-    public HttpResponse<String> sendGet(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
+    public JsonObject sendGet(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
         String urlToSend = this.formUrlToSend(endpoint, params);
         try {
             HttpRequest request = buildRequest().GET().uri(new URI(urlToSend)).build();
-            return this.dispatchRequest(request);
+            return getJsonFromResponseBody(this.dispatchRequest(request));
         } catch (IOException | InterruptedException | URISyntaxException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public HttpResponse<String> sendPost(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
+    public JsonObject sendPost(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
         String urlToSend = this.formUrlToSend(endpoint, params);
         try {
             HttpRequest request = buildRequest().POST(HttpRequest.BodyPublishers.noBody()).uri(new URI(urlToSend)).build();
-            return this.dispatchRequest(request);
+            return getJsonFromResponseBody(this.dispatchRequest(request));
         } catch (IOException | InterruptedException | URISyntaxException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public HttpResponse<String> sendDelete(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
+    public JsonObject sendDelete(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
         String urlToSend = this.formUrlToSend(endpoint, params);
         try {
             HttpRequest request = buildRequest().DELETE().uri(new URI(urlToSend)).build();
-            return this.dispatchRequest(request);
+            return getJsonFromResponseBody(this.dispatchRequest(request));
         } catch (IOException | InterruptedException | URISyntaxException e) {
             e.printStackTrace();
             return null;
@@ -86,7 +89,12 @@ public class HttpUtils {
         if (httpResponse.statusCode() < 200 || httpResponse.statusCode() > 399) {
             throw new AbuseIPDBApiException(httpResponse.statusCode(), httpResponse.body());
         }
+
         return httpResponse;
+    }
+
+    private JsonObject getJsonFromResponseBody(HttpResponse<String> response) {
+        return JsonParser.parseString(response.body()).getAsJsonObject();
     }
 
 }
