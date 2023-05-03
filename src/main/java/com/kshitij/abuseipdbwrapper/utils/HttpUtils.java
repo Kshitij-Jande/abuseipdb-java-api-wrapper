@@ -47,6 +47,17 @@ public class HttpUtils {
         }
     }
 
+    public HttpResponse<String> sendDelete(String endpoint, Map<String, String> params) throws ApiException {
+        String urlToSend = this.formUrlToSend(endpoint, params);
+        try {
+            HttpRequest request = buildRequest().DELETE().uri(new URI(urlToSend)).build();
+            return this.dispatchRequest(request);
+        } catch (IOException | InterruptedException | URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private String formUrlToSend(String endpoint, Map<String, String> params) {
         return this.URL + endpoint + "?" + this.formQueryParameters(params);
     }
