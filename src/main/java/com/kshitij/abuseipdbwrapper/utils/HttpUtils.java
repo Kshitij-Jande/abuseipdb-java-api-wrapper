@@ -1,6 +1,6 @@
 package com.kshitij.abuseipdbwrapper.utils;
 
-import com.kshitij.abuseipdbwrapper.exceptions.ApiException;
+import com.kshitij.abuseipdbwrapper.exceptions.AbuseIPDBApiException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,7 +25,7 @@ public class HttpUtils {
         this.client = HttpClient.newHttpClient();
     }
 
-    public HttpResponse<String> sendGet(String endpoint, Map<String, String> params) throws ApiException {
+    public HttpResponse<String> sendGet(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
         String urlToSend = this.formUrlToSend(endpoint, params);
         try {
             HttpRequest request = buildRequest().GET().uri(new URI(urlToSend)).build();
@@ -36,7 +36,7 @@ public class HttpUtils {
         }
     }
 
-    public HttpResponse<String> sendPost(String endpoint, Map<String, String> params) throws ApiException {
+    public HttpResponse<String> sendPost(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
         String urlToSend = this.formUrlToSend(endpoint, params);
         try {
             HttpRequest request = buildRequest().POST(HttpRequest.BodyPublishers.noBody()).uri(new URI(urlToSend)).build();
@@ -47,7 +47,7 @@ public class HttpUtils {
         }
     }
 
-    public HttpResponse<String> sendDelete(String endpoint, Map<String, String> params) throws ApiException {
+    public HttpResponse<String> sendDelete(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
         String urlToSend = this.formUrlToSend(endpoint, params);
         try {
             HttpRequest request = buildRequest().DELETE().uri(new URI(urlToSend)).build();
@@ -74,11 +74,11 @@ public class HttpUtils {
         return HttpRequest.newBuilder().setHeader("User-Agent", "AbuseIPDBAPIWrapper").setHeader("Key", this.apiKey).timeout(Duration.ofSeconds(30));
     }
 
-    private HttpResponse<String> dispatchRequest(HttpRequest request) throws ApiException, IOException, InterruptedException {
+    private HttpResponse<String> dispatchRequest(HttpRequest request) throws AbuseIPDBApiException, IOException, InterruptedException {
         HttpResponse<String> httpResponse = this.client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (httpResponse.statusCode() < 200 || httpResponse.statusCode() > 399) {
-            throw new ApiException(httpResponse.statusCode(), httpResponse.body());
+            throw new AbuseIPDBApiException(httpResponse.statusCode(), httpResponse.body());
         }
         return httpResponse;
     }

@@ -8,13 +8,13 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiException extends Exception {
+public class AbuseIPDBApiException extends Exception {
 
     private final int statusCode;
     private final JsonObject body;
     private final List<String> errorDetails = new ArrayList<>();
 
-    public ApiException(int statusCode, String body) {
+    public AbuseIPDBApiException(int statusCode, String body) {
         super("Got an error from AbuseIPDB's API.");
         this.statusCode = statusCode;
         JsonElement jsonElement = JsonParser.parseString(body);
