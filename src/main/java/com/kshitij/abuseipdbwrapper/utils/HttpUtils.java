@@ -63,7 +63,13 @@ public class HttpUtils {
     }
 
     private String formQueryParameters(Map<String, String> params) {
-        return params.entrySet().stream().map(p -> encodeString(p.getKey()) + "=" + encodeString(p.getValue())).collect(Collectors.joining("&"));
+        return params.entrySet().stream().map((p) -> {
+            try {
+                return encodeString(p.getKey()) + "=" + encodeString(p.getValue());
+            } catch (NullPointerException e) {
+                return encodeString(p.getKey());
+            }
+        }).collect(Collectors.joining("&"));
     }
 
     private String encodeString(String s) {
