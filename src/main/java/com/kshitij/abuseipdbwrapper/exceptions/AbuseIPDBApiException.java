@@ -8,7 +8,7 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AbuseIPDBApiException extends Exception {
+public class AbuseIPDBApiException extends RuntimeException {
 
     private final int statusCode;
     private final JsonObject body;
