@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.kshitij.abuseipdbwrapper.exceptions.AbuseIPDBApiException;
-import com.kshitij.abuseipdbwrapper.models.BlacklistData;
-import com.kshitij.abuseipdbwrapper.models.CheckData;
-import com.kshitij.abuseipdbwrapper.models.ReportData;
-import com.kshitij.abuseipdbwrapper.models.ReportsData;
+import com.kshitij.abuseipdbwrapper.models.*;
 import com.kshitij.abuseipdbwrapper.utils.BasicUtils;
 import com.kshitij.abuseipdbwrapper.utils.HttpUtils;
 
@@ -98,6 +95,25 @@ public class AbuseIPDB {
         return gson.fromJson(
                 httpUtils.sendPost("/report", params).get("data"),
                 ReportData.class
+        );
+    }
+
+    public CheckBlockData checkBlocked(String network) {
+        Map<String, String> params = new HashMap<>();
+        params.put("network", network);
+        return gson.fromJson(
+                httpUtils.sendGet("/check-block", params).get("data"),
+                CheckBlockData.class
+        );
+    }
+
+    public CheckBlockData checkBlocked(String network, int maxAgeInDays) {
+        Map<String, String> params = new HashMap<>();
+        params.put("network", network);
+        params.put("maxAgeInDays", String.valueOf(maxAgeInDays));
+        return gson.fromJson(
+                httpUtils.sendGet("/check-block", params).get("data"),
+                CheckBlockData.class
         );
     }
 
