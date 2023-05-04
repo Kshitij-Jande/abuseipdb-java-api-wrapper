@@ -2,7 +2,9 @@ package com.kshitij.abuseipdbwrapper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.kshitij.abuseipdbwrapper.exceptions.AbuseIPDBApiException;
+import com.kshitij.abuseipdbwrapper.models.BlacklistData;
 import com.kshitij.abuseipdbwrapper.models.CheckData;
 import com.kshitij.abuseipdbwrapper.models.ReportsData;
 import com.kshitij.abuseipdbwrapper.utils.HttpUtils;
@@ -50,6 +52,28 @@ public class AbuseIPDB {
         return gson.fromJson(
                 httpUtils.sendGet("/reports", params).get("data"),
                 ReportsData.class
+        );
+    }
+
+    public BlacklistData getBlacklists() {
+        Map<String, String> params = new HashMap<>();
+        return getBlacklistData(params);
+    }
+
+    public BlacklistData getBlacklists(int confidenceMinimum) {
+        Map<String, String> params = new HashMap<>();
+        params.put("confidenceMinimum", String.valueOf(confidenceMinimum));
+        return getBlacklistData(params);
+    }
+
+    private BlacklistData getBlacklistData(Map<String, String> params) {
+        JsonObject raw = httpUtils.sendGet("/blacklist", params);
+        JsonObject processed = new JsonObject();
+        processed.add("generatedAt", raw.get("meta").getAsJsonObject().get("generatedAt"));
+        processed.add("blacklists", raw.get("data"));
+        return gson.fromJson(
+                processed,
+                BlacklistData.class
         );
     }
 
