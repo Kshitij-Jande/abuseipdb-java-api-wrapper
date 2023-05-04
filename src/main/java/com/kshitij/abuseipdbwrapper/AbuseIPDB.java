@@ -6,9 +6,12 @@ import com.google.gson.JsonObject;
 import com.kshitij.abuseipdbwrapper.exceptions.AbuseIPDBApiException;
 import com.kshitij.abuseipdbwrapper.models.BlacklistData;
 import com.kshitij.abuseipdbwrapper.models.CheckData;
+import com.kshitij.abuseipdbwrapper.models.ReportData;
 import com.kshitij.abuseipdbwrapper.models.ReportsData;
+import com.kshitij.abuseipdbwrapper.utils.BasicUtils;
 import com.kshitij.abuseipdbwrapper.utils.HttpUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,6 +77,27 @@ public class AbuseIPDB {
         return gson.fromJson(
                 processed,
                 BlacklistData.class
+        );
+    }
+
+    public ReportData reportIp(String ipAddress, int[] categories) {
+        Map<String, String> params = new HashMap<>();
+        params.put("ip", ipAddress);
+        params.put("categories", BasicUtils.joinIntArray(categories));
+        return gson.fromJson(
+                httpUtils.sendPost("/report", params).get("data"),
+                ReportData.class
+        );
+    }
+
+    public ReportData reportIp(String ipAddress, int[] categories, String comment) {
+        Map<String, String> params = new HashMap<>();
+        params.put("ip", ipAddress);
+        params.put("categories", BasicUtils.joinIntArray(categories));
+        params.put("comment", comment);
+        return gson.fromJson(
+                httpUtils.sendPost("/report", params).get("data"),
+                ReportData.class
         );
     }
 
