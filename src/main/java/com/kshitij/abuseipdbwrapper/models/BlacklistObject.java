@@ -6,10 +6,10 @@ import java.util.Date;
 
 public class BlacklistObject {
 
-    private String ipAddress;
-    private int abuseConfidenceScore;
-    private String countryCode;
-    private Date lastReportedAt;
+    private final String ipAddress;
+    private final int abuseConfidenceScore;
+    private final String countryCode;
+    private final Date lastReportedAt;
 
     public BlacklistObject(String ipAddress, int abuseConfidenceScore, String countryCode, String lastReportedAt) throws ParseException {
         this.ipAddress = ipAddress;

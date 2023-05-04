@@ -8,8 +8,8 @@ import java.util.List;
 
 public class BlacklistData {
 
-    private Date generatedAt;
-    private List<BlacklistObject> blacklists;
+    private final Date generatedAt;
+    private final List<BlacklistObject> blacklists;
 
     public BlacklistData(String generatedAt, List<BlacklistObject> blacklists) throws ParseException {
         this.generatedAt = BasicUtils.toDate(generatedAt);
