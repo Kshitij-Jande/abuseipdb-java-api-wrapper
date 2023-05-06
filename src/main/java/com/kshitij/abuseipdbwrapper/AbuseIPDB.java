@@ -117,4 +117,19 @@ public class AbuseIPDB {
         );
     }
 
+    // TODO: Implement a method for "/bulk-report" endpoint.
+    // public BulkReportData bulkReport() {
+    //
+    //}
+
+
+    public ClearAddressData clearAddress(String ipAddress) {
+        Map<String, String> params = new HashMap<>();
+        params.put("ipAddress", ipAddress);
+        return gson.fromJson(
+                httpUtils.sendDelete("/clear-address", params).get("data"),
+                ClearAddressData.class
+        );
+    }
+
 }
