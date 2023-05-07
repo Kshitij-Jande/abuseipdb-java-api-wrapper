@@ -8,6 +8,7 @@ import com.kshitij.abuseipdbwrapper.models.*;
 import com.kshitij.abuseipdbwrapper.utils.BasicUtils;
 import com.kshitij.abuseipdbwrapper.utils.HttpUtils;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -117,10 +118,13 @@ public class AbuseIPDB {
         );
     }
 
-    // TODO: Implement a method for "/bulk-report" endpoint.
-    // public BulkReportData bulkReport() {
-    //
-    //}
+    public BulkReportData bulkReport(String pathToCsvFile) {
+        Map<String, String> params = new HashMap<>();
+        return gson.fromJson(
+                httpUtils.sendPost("/bulk-report", params, "csv", new File(pathToCsvFile)),
+                BulkReportData.class
+        );
+    }
 
 
     public ClearAddressData clearAddress(String ipAddress) {
