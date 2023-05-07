@@ -1,17 +1,30 @@
 package com.kshitij.abuseipdbwrapper.utils;
 
-import com.google.gson.JsonElement;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.kshitij.abuseipdbwrapper.exceptions.AbuseIPDBApiException;
+import org.apache.commons.codec.Charsets;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
@@ -29,40 +42,59 @@ public class HttpUtils {
     }
 
     public JsonObject sendGet(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
-        String urlToSend = this.formUrlToSend(endpoint, params);
+        String urlToSend = formUrlToSend(endpoint, params);
         try {
-            HttpRequest request = buildRequest().GET().uri(new URI(urlToSend)).build();
-            return getJsonFromResponseBody(this.dispatchRequest(request));
-        } catch (IOException | InterruptedException | URISyntaxException e) {
+            HttpGet request = new HttpGet(urlToSend);
+            setNecessaryHeaders(request);
+            return getJsonFromHttpEntity(dispatchRequest(request));
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
     public JsonObject sendPost(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
+        String urlToSend = formUrlToSend(endpoint, params);
+        try {
+            HttpPost request = new HttpPost(urlToSend);
+            setNecessaryHeaders(request);
+            HttpEntity entity = dispatchRequest(request);
+            return getJsonFromHttpEntity(entity);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JsonObject sendPost(String endpoint, Map<String, String> params, String key, File file) throws AbuseIPDBApiException {
         String urlToSend = this.formUrlToSend(endpoint, params);
         try {
-            HttpRequest request = buildRequest().POST(HttpRequest.BodyPublishers.noBody()).uri(new URI(urlToSend)).build();
-            return getJsonFromResponseBody(this.dispatchRequest(request));
-        } catch (IOException | InterruptedException | URISyntaxException e) {
+            HttpPost request = new HttpPost(urlToSend);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addPart(key, new FileBody(file, ContentType.DEFAULT_BINARY));
+            request.setEntity(builder.build());
+            setNecessaryHeaders(request);
+            return getJsonFromHttpEntity(dispatchRequest(request));
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
     public JsonObject sendDelete(String endpoint, Map<String, String> params) throws AbuseIPDBApiException {
-        String urlToSend = this.formUrlToSend(endpoint, params);
+        String urlToSend = formUrlToSend(endpoint, params);
         try {
-            HttpRequest request = buildRequest().DELETE().uri(new URI(urlToSend)).build();
-            return getJsonFromResponseBody(this.dispatchRequest(request));
-        } catch (IOException | InterruptedException | URISyntaxException e) {
+            HttpDelete request = new HttpDelete(urlToSend);
+            setNecessaryHeaders(request);
+            return getJsonFromHttpEntity(dispatchRequest(request));
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
     private String formUrlToSend(String endpoint, Map<String, String> params) {
-        return this.URL + endpoint + "?" + this.formQueryParameters(params);
+        return URL + endpoint + "?" + formQueryParameters(params);
     }
 
     private String formQueryParameters(Map<String, String> params) {
@@ -79,22 +111,34 @@ public class HttpUtils {
         return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 
-    private HttpRequest.Builder buildRequest() {
-        return HttpRequest.newBuilder().setHeader("User-Agent", "AbuseIPDBAPIWrapper").setHeader("Key", this.apiKey).timeout(Duration.ofSeconds(30));
+    private void setNecessaryHeaders(HttpUriRequest request) {
+        request.setHeader("User-Agent", "AbuseIPDBAPIWrapper");
+        request.setHeader("Key", apiKey);
+        request.setHeader("Accept", "application/json");
     }
 
-    private HttpResponse<String> dispatchRequest(HttpRequest request) throws AbuseIPDBApiException, IOException, InterruptedException {
-        HttpResponse<String> httpResponse = this.client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (httpResponse.statusCode() < 200 || httpResponse.statusCode() > 399) {
-            throw new AbuseIPDBApiException(httpResponse.statusCode(), httpResponse.body());
+    private HttpEntity dispatchRequest(HttpUriRequest request) throws AbuseIPDBApiException, IOException {
+        CloseableHttpResponse client = HttpClients.createDefault().execute(request);
+        int statusCode = client.getStatusLine().getStatusCode();
+        if (statusCode < 200 || statusCode > 399) {
+            throw new AbuseIPDBApiException(statusCode, getStringFromEntity(client.getEntity()));
         }
-
-        return httpResponse;
+        return client.getEntity();
     }
 
-    private JsonObject getJsonFromResponseBody(HttpResponse<String> response) {
-        return JsonParser.parseString(response.body()).getAsJsonObject();
+    private JsonObject getJsonFromHttpEntity(HttpEntity entity) throws IOException {
+        return new Gson().fromJson(
+                getStringFromEntity(entity),
+                JsonObject.class
+        );
+    }
+
+    private String getStringFromEntity(HttpEntity entity) throws IOException {
+        Header encodingHeader = entity.getContentEncoding();
+        Charset encodingCharset = encodingHeader == null
+                ? StandardCharsets.UTF_8
+                : Charsets.toCharset(encodingHeader.getValue());
+        return EntityUtils.toString(entity, encodingCharset);
     }
 
 }
