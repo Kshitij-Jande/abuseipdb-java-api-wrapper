@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AbuseIPDBApiException extends RuntimeException {
 
@@ -15,7 +16,9 @@ public class AbuseIPDBApiException extends RuntimeException {
     private final List<String> errorDetails = new ArrayList<>();
 
     public AbuseIPDBApiException(int statusCode, String body) {
-        super("Got an error from AbuseIPDB's API. Full body: " + body);
+        super("Error from AbuseIPDB's API." + JsonParser.parseString(body).getAsJsonObject().get("errors").getAsJsonArray()
+                .asList().stream().map(o -> o.getAsJsonObject().get("detail").getAsString())
+                .collect(Collectors.joining("\n", " ", "")));
         this.statusCode = statusCode;
         JsonElement jsonElement = JsonParser.parseString(body);
         this.body = jsonElement.getAsJsonObject();
