@@ -16,9 +16,9 @@ public class AbuseIPDBApiException extends RuntimeException {
     private final List<String> errorDetails = new ArrayList<>();
 
     public AbuseIPDBApiException(int statusCode, String body) {
-        super("Error from AbuseIPDB's API." + JsonParser.parseString(body).getAsJsonObject().get("errors").getAsJsonArray()
+        super("Error from AbuseIPDB's API. " + JsonParser.parseString(body).getAsJsonObject().get("errors").getAsJsonArray()
                 .asList().stream().map(o -> o.getAsJsonObject().get("detail").getAsString())
-                .collect(Collectors.joining("\n", " ", "")));
+                .collect(Collectors.joining(" ")));
         this.statusCode = statusCode;
         JsonElement jsonElement = JsonParser.parseString(body);
         this.body = jsonElement.getAsJsonObject();
