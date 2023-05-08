@@ -9,7 +9,6 @@ import com.kshitij.abuseipdbwrapper.utils.BasicUtils;
 import com.kshitij.abuseipdbwrapper.utils.HttpUtils;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -125,7 +124,6 @@ public class AbuseIPDB {
                 BulkReportData.class
         );
     }
-
 
     public ClearAddressData clearAddress(String ipAddress) {
         Map<String, String> params = new HashMap<>();
